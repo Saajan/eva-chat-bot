@@ -1,25 +1,21 @@
 const {
     WaterfallDialog,
     ComponentDialog,
-    ConfirmPrompt,
-    NumberPrompt,
     TextPrompt,
     DialogSet,
     DialogTurnStatus
 } = require('botbuilder-dialogs');
 
-const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
-const TEXT_PROMPT = 'TEXT_PROMPT';
-const NUMBER_PROMPT = 'NUMBER_PROMPT';
+const TEXT_PASSWORD_PROMPT = 'TEXT_PASSWORD_PROMPT';
+const TEXT_EMAIL_PROMPT = 'TEXT_EMAIL_PROMPT';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 var endDialog = '';
 
 class LoginDialog extends ComponentDialog {
-    constructor(conversationState, userState) {
+    constructor() {
         super('loginDialog');
-        this.addDialog(new TextPrompt(TEXT_PROMPT));
-        this.addDialog(new ConfirmPrompt(CONFIRM_PROMPT));
-        this.addDialog(new NumberPrompt(NUMBER_PROMPT, this.noOfParticipantsValidator));
+        this.addDialog(new TextPrompt(TEXT_EMAIL_PROMPT, this.emailValidator));
+        this.addDialog(new TextPrompt(TEXT_PASSWORD_PROMPT, this.passwordValidator));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
             this.getUserEmail.bind(this),
             this.getUserPassword.bind(this),
@@ -40,12 +36,12 @@ class LoginDialog extends ComponentDialog {
 
     async getUserEmail(step) {
         endDialog = false;
-        return await step.prompt(TEXT_PROMPT, 'Enter your E-Mail ID');
+        return await step.prompt(TEXT_EMAIL_PROMPT, 'Enter your E-Mail ID');
     }
 
     async getUserPassword(step) {
         step.values.email = step.result
-        return await step.prompt(TEXT_PROMPT, 'Please enter your Password');
+        return await step.prompt(TEXT_PASSWORD_PROMPT, 'Please enter your Password');
     }
 
     async summaryStep(step) {
@@ -54,14 +50,15 @@ class LoginDialog extends ComponentDialog {
             await step.context.sendActivity("Successfully logged in.")
             endDialog = true;
             return await step.endDialog();
-        } else {
-            await this.dialogContext.beginDialog(this.id);
         }
     }
 
-    async noOfParticipantsValidator(promptContext) {
-        // This condition is our validation rule. You can also change the value at this point.
-        return promptContext.recognized.succeeded && promptContext.recognized.value > 1 && promptContext.recognized.value < 150;
+    async emailValidator(promptContext) {
+        return promptContext.recognized.succeeded && promptContext.recognized.value == 'a';
+    }
+
+    async passwordValidator(promptContext) {
+        return promptContext.recognized.succeeded && promptContext.recognized.value == 'a';
     }
 
     async isDialogComplete() {

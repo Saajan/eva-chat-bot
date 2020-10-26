@@ -50,7 +50,7 @@ class CONVIVABOT extends ActivityHandler {
                     }
                 }
             } else {
-                await this.dispatchToIntentAsync(context);
+                await this.dispatchToIntentAsync(context, next);
             }
             await next();
         });
@@ -93,7 +93,7 @@ class CONVIVABOT extends ActivityHandler {
         }
     }
 
-    async sendHelpActions(turnContext) {
+    async sendHelpActions(turnContext, next) {
         const card = CardFactory.heroCard(
             'Here is the help you wanted',
             `Type 'suggestion' for suggested actions and for detailed documentation here are the links`,
@@ -109,6 +109,7 @@ class CONVIVABOT extends ActivityHandler {
             }]
         );
         await turnContext.sendActivity({ attachments: [card] });
+        await next();
     }
 
     async sendSuggestedActions(turnContext) {
@@ -116,21 +117,9 @@ class CONVIVABOT extends ActivityHandler {
         await turnContext.sendActivity(reply);
     }
 
-    async dispatchToIntentAsync(context) {
-        let currentIntent = '';
-        const previousIntent = await this.previousIntentAccessor.get(context, {});
-        const conversationData = await this.conversationDataAccessor.get(context, {});
-        if (previousIntent.intentName && conversationData.endDialog === false) {
-            currentIntent = previousIntent.intentName;
-        }
-        else if (previousIntent.intentName && conversationData.endDialog === true) {
-            currentIntent = context.activity.text;
-        }
-        else {
-            currentIntent = context.activity.text;
-            await this.previousIntentAccessor.set(context, { intentName: context.activity.text });
-        }
-        const typed = currentIntent.toLowerCase();
+    async dispatchToIntentAsync(context, next) {
+        const typed = context.activity.text.toLowerCase();
+        console.log({ typed }, context.activity.text);
         switch (typed) {
             case 'alerts':
                 console.log("Alert Case");
@@ -173,7 +162,7 @@ class CONVIVABOT extends ActivityHandler {
                 }
                 break;
             case 'help':
-                await this.sendHelpActions(context);
+                await this.sendHelpActions(context, next);
                 break;
             case 'suggestion':
                 await this.sendSuggestedActions(context);
