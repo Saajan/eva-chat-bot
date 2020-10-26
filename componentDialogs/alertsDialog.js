@@ -16,7 +16,6 @@ const CHOICE_PROMPT = 'CHOICE_PROMPT';
 const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
 const TEXT_PROMPT = 'TEXT_PROMPT';
 const NUMBER_PROMPT = 'NUMBER_PROMPT';
-const DATETIME_PROMPT = 'DATETIME_PROMPT';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 let endDialog = '';
 
@@ -48,56 +47,31 @@ class AlertsDialog extends ComponentDialog {
     async firstStep(step) {
         endDialog = false;
         //axios.get('http://localhost:3000/alert')
-            //.then(function (response) {
-                //let { data } = response;
-               // console.log(data);
-            //})
-            //.catch(function (error) {
-                // console.log(error);
-            //})
-            //.then(function () {
+        //.then(function (response) {
+        //let { data } = response;
+        // console.log(data);
+        //})
+        //.catch(function (error) {
+        // console.log(error);
+        //})
+        //.then(function () {
 
-            //});
-        const cardActions = [
-            {
-                type: ActionTypes.PostBack,
-                title: 'Alert 1',
-                value: 'Alert 1',
-                image: 'https://via.placeholder.com/20/FF0000?text=R',
-                imageAltText: ''
-            },
-            {
-                type: ActionTypes.PostBack,
-                title: 'Alerts 2',
-                value: 'Alerts 2',
-                image: 'https://via.placeholder.com/20/FFFF00?text=Y',
-                imageAltText: ''
-            },
-            {
-                type: ActionTypes.PostBack,
-                title: 'Alerts 3',
-                value: 'Alerts 3',
-                image: 'https://via.placeholder.com/20/0000FF?text=B',
-                imageAltText: ''
-            }
-        ];
-
-        var reply = MessageFactory.suggestedActions(cardActions, 'Select the alert to change the settings?');
-        return await step.context.sendActivity(reply);
+        //});
+        return await step.prompt(CHOICE_PROMPT, `Here are your alerts. Select any one of them to Edit or Delete.`, ['Alert 1', 'Alert 2']);
     }
 
     async confirmStep(step) {
-        console.log("step to message",step.result);
-        step.values.reservationNo = step.result
-        var msg = ` You have entered following values: \n Reservation Number: ${step.values.reservationNo}`
+        console.log("step to message", step.result);
+        step.values.alert = step.result.value;
+        var msg = ` You have selected: \n Alert : ${step.values.alert}`
         await step.context.sendActivity(msg);
-        return await step.prompt(CONFIRM_PROMPT, 'Are you sure that all values are correct and you want to CANCEL the reservation?', ['yes', 'no']);
+        return await step.prompt(CONFIRM_PROMPT, 'Do you want to delete this alert?', ['yes', 'no']);
     }
 
     async summaryStep(step) {
         if (step.result === true) {
             // Business 
-            await step.context.sendActivity("Reservation successfully cancelled. Your reservation id is : 12345678")
+            await step.context.sendActivity(`${step.values.alert} has been deleted successfully.`)
             endDialog = true;
             return await step.endDialog();
         }
