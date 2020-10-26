@@ -5,8 +5,10 @@ const {
     DialogSet,
     DialogTurnStatus
 } = require('botbuilder-dialogs');
+const { UserProfile } = require('../userProfile');
 
 const TEXT_PASSWORD_PROMPT = 'TEXT_PASSWORD_PROMPT';
+const TEXT_NAME_PROMPT = 'TEXT_NAME_PROMPT';
 const TEXT_EMAIL_PROMPT = 'TEXT_EMAIL_PROMPT';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 var endDialog = '';
@@ -14,9 +16,11 @@ var endDialog = '';
 class LoginDialog extends ComponentDialog {
     constructor() {
         super('loginDialog');
+        this.addDialog(new TextPrompt(TEXT_NAME_PROMPT, this.nameValidator));
         this.addDialog(new TextPrompt(TEXT_EMAIL_PROMPT, this.emailValidator));
         this.addDialog(new TextPrompt(TEXT_PASSWORD_PROMPT, this.passwordValidator));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
+            this.getUserName.bind(this),
             this.getUserEmail.bind(this),
             this.getUserPassword.bind(this),
             this.summaryStep.bind(this)
@@ -34,23 +38,30 @@ class LoginDialog extends ComponentDialog {
         }
     }
 
+    async getUserName(step) {
+        step.values.userInfo = new UserProfile();
+        endDialog = false;
+        return await step.prompt(TEXT_NAME_PROMPT, 'With what name we should address you?');
+    }
+
     async getUserEmail(step) {
+        step.values.userInfo.name = step.result;
         endDialog = false;
         return await step.prompt(TEXT_EMAIL_PROMPT, 'Enter your E-Mail ID');
     }
 
     async getUserPassword(step) {
-        step.values.email = step.result
+        step.values.userInfo.email = step.result;
+        endDialog = false;
         return await step.prompt(TEXT_PASSWORD_PROMPT, 'Please enter your Password');
     }
 
     async summaryStep(step) {
         step.values.password = step.result
-        if (step.values.email == "a" && step.values.password == "a") {
-            await step.context.sendActivity("Successfully logged in.")
-            endDialog = true;
-            return await step.endDialog();
-        }
+        await step.context.sendActivity("Successfully logged in.");
+        const userProfile = step.values.userInfo;
+        endDialog = true;
+        return await step.endDialog(userProfile);
     }
 
     async emailValidator(promptContext) {
@@ -58,6 +69,10 @@ class LoginDialog extends ComponentDialog {
     }
 
     async passwordValidator(promptContext) {
+        return promptContext.recognized.succeeded && promptContext.recognized.value == 'a';
+    }
+
+    async nameValidator(promptContext) {
         return promptContext.recognized.succeeded && promptContext.recognized.value == 'a';
     }
 

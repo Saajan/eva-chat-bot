@@ -40,6 +40,7 @@ class CONVIVABOT extends ActivityHandler {
                     await this.conversationDataAccessor.set(context, { endDialog: false });
                     await this.loginDialog.run(context, this.dialogState);
                     conversationData.endDialog = await this.loginDialog.isDialogComplete();
+                    console.log({ conversationData }, this.loginDialog);
                     if (conversationData.endDialog) {
                         conversationData.promptedForUsername = true;
                         userProfile.name = "good";
@@ -118,9 +119,23 @@ class CONVIVABOT extends ActivityHandler {
     }
 
     async dispatchToIntentAsync(context, next) {
-        const typed = context.activity.text.toLowerCase();
-        console.log({ typed }, context.activity.text);
-        switch (typed) {
+        let currentIntent = '';
+        const previousIntent = await this.previousIntentAccessor.get(context, {});
+        const conversationData = await this.conversationDataAccessor.get(context, {});
+        if (previousIntent.intentName && conversationData.endDialog === false) {
+            currentIntent = previousIntent.intentName;
+        } else if (previousIntent.intentName && conversationData.endDialog === true) {
+            currentIntent = context.activity.text;
+        } else {
+            currentIntent = context.activity.text;
+            await this.previousIntentAccessor.set(context, { intentName: context.activity.text });
+        }
+        let currentIntentRunning = currentIntent.toLowerCase();
+        if (context.activity.text === 'exit') {
+            currentIntentRunning = 'suggestion';
+            await this.previousIntentAccessor.set(context, { intentName: null });
+        }
+        switch (currentIntentRunning) {
             case 'alerts':
                 console.log("Alert Case");
                 await this.conversationDataAccessor.set(context, { endDialog: false });
