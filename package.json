@@ -1,7 +1,7 @@
 {
-    "name": "RRBOT",
+    "name": "alert-bot",
     "version": "1.0.0",
-    "description": "Make reservations for a restaurant ",
+    "description": "Create Alert bot",
     "author": "Generated using Microsoft Bot Builder Yeoman generator v4.7.0",
     "license": "MIT",
     "main": "index.js",
