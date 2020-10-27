@@ -11,7 +11,7 @@ const CONVERSATION_DATA = 'conversationData';
 const DIALOG_STATE = 'dialogState';
 const PREVIOUS_INTENT = 'previousIntent';
 
-class CONVIVABOT extends ActivityHandler {
+class ALERTBOT extends ActivityHandler {
     constructor(conversationState, userState, conversationReferences) {
         super();
         this.userProfileAccessor = userState.createProperty(USER_PROFILE);
@@ -189,4 +189,4 @@ class CONVIVABOT extends ActivityHandler {
     }
 }
 
-module.exports.CONVIVABOT = CONVIVABOT;
+module.exports.ALERTBOT = ALERTBOT;
