@@ -10,7 +10,7 @@ const restify = require('restify');
 const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
 
 // This bot's main dialog.
-const { CONVIVABOT } = require('./convivabot');
+const { ALERTBOT } = require('./alertbot');
 
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
@@ -61,13 +61,13 @@ const userState = new UserState(memoryStorage);
 const conversationReferences = {};
 
 // Create the main dialog.
-const convivabot = new CONVIVABOT(conversationState, userState, conversationReferences);
+const alertBot = new ALERTBOT(conversationState, userState, conversationReferences);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
-        await convivabot.run(context);
+        await alertBot.run(context);
     });
 });
 

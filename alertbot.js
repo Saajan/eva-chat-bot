@@ -33,7 +33,7 @@ class CONVIVABOT extends ActivityHandler {
             if (!userProfile.name) {
                 if (conversationData.promptedForUsername) {
                     userProfile.name = context.activity.text;
-                    await context.sendActivity(`Thanks ${userProfile.name}. Welcome to Conviva bot.`);
+                    await context.sendActivity(`Thanks ${userProfile.name}. Welcome to Alert bot.`);
                     conversationData.promptedForUsername = false;
                     await this.sendSuggestedActions(context);
                 } else {
