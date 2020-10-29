@@ -4,10 +4,11 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
+const { MongoDbStorage } = require('@botbuildercommunity/storage-mongodb');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
+const { BotFrameworkAdapter, ConversationState, UserState } = require('botbuilder');
 
 // This bot's main dialog.
 const { ALERTBOT } = require('./alertbot');
@@ -15,6 +16,7 @@ const { ALERTBOT } = require('./alertbot');
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
+const mongoDbStorage = new MongoDbStorage('mongodb://localhost:27017/', 'testDatabase', 'testCollection');
 
 // Create HTTP server
 const server = restify.createServer();
@@ -54,10 +56,8 @@ const onTurnErrorHandler = async (context, error) => {
 // Set the onTurnError for the singleton BotFrameworkAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-const memoryStorage = new MemoryStorage();
-
-const conversationState = new ConversationState(memoryStorage);
-const userState = new UserState(memoryStorage);
+const conversationState = new ConversationState(mongoDbStorage);
+const userState = new UserState(mongoDbStorage);
 const conversationReferences = {};
 
 // Create the main dialog.

@@ -5,11 +5,9 @@ const {
     DialogTurnStatus,
     ConfirmPrompt,
     ChoicePrompt,
-    DateTimePrompt,
     NumberPrompt,
     TextPrompt
 } = require('botbuilder-dialogs');
-const { ActionTypes, MessageFactory } = require('botbuilder');
 const axios = require('axios');
 
 const CHOICE_PROMPT = 'CHOICE_PROMPT';
@@ -21,7 +19,7 @@ let endDialog = '';
 
 class AlertsDialog extends ComponentDialog {
     constructor(conversationState, userState) {
-        super('cancelAlertDialog');
+        super('deleteAlertDialog');
         this.addDialog(new TextPrompt(TEXT_PROMPT));
         this.addDialog(new ChoicePrompt(CHOICE_PROMPT));
         this.addDialog(new ConfirmPrompt(CONFIRM_PROMPT));
@@ -61,7 +59,6 @@ class AlertsDialog extends ComponentDialog {
     }
 
     async confirmStep(step) {
-        console.log("step to message", step.result);
         step.values.alert = step.result.value;
         var msg = ` You have selected: \n Alert : ${step.values.alert}`
         await step.context.sendActivity(msg);
@@ -70,7 +67,6 @@ class AlertsDialog extends ComponentDialog {
 
     async summaryStep(step) {
         if (step.result === true) {
-            // Business 
             await step.context.sendActivity(`${step.values.alert} has been deleted successfully.`)
             endDialog = true;
             return await step.endDialog();

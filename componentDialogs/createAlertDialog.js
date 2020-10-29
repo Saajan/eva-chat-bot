@@ -37,6 +37,7 @@ class CreateAlertDialog extends ComponentDialog {
             this.summaryStep.bind(this)
         ]));
         this.initialDialogId = WATERFALL_DIALOG;
+        this.userState = userState;
     }
 
     async run(turnContext, accessor) {

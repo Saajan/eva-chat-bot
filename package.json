@@ -16,6 +16,7 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "@botbuildercommunity/storage-mongodb": "^1.0.1",
         "axios": "^0.20.0",
         "botbuilder": "~4.7.0",
         "botbuilder-dialogs": "^4.8.0",

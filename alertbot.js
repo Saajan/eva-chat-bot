@@ -29,7 +29,8 @@ class ALERTBOT extends ActivityHandler {
         // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
         this.onMessage(async (context, next) => {
             const userProfile = await this.userProfileAccessor.get(context, {});
-            const conversationData = await this.conversationDataAccessor.get(context, { promptedForUsername: false })
+            const conversationData = await this.conversationDataAccessor.get(context, { promptedForUsername: false });
+            console.log(userProfile);
             if (!userProfile.name) {
                 if (conversationData.promptedForUsername) {
                     userProfile.name = context.activity.text;
@@ -40,10 +41,8 @@ class ALERTBOT extends ActivityHandler {
                     await this.conversationDataAccessor.set(context, { endDialog: false });
                     await this.loginDialog.run(context, this.dialogState);
                     conversationData.endDialog = await this.loginDialog.isDialogComplete();
-                    console.log({ conversationData }, this.loginDialog);
                     if (conversationData.endDialog) {
                         conversationData.promptedForUsername = true;
-                        userProfile.name = "good";
                         await this.sendSuggestedActions(context);
                     } else {
                         conversationData.endDialog = false;
@@ -135,6 +134,7 @@ class ALERTBOT extends ActivityHandler {
             currentIntentRunning = 'suggestion';
             await this.previousIntentAccessor.set(context, { intentName: null });
         }
+        console.log(currentIntentRunning);
         switch (currentIntentRunning) {
             case 'alerts':
                 console.log("Alert Case");
