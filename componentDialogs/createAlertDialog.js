@@ -78,7 +78,7 @@ class CreateAlertDialog extends ComponentDialog {
             step.values.name = step.result;
         }
         if (!step.values.metrics) {
-            return await step.prompt(METRIC_PROMPT, 'Select the metrics', ['Average Bitrate', 'Concurrent Plays', 'VSF', 'VPF']);
+            return await step.prompt(METRIC_PROMPT, 'Select the metrics', ['Average Bitrate', 'Concurrent Plays', 'VSF', 'VPF', 'Plays', 'Average Framerate', 'Attempts', 'Rebuffering Ratio']);
         } else {
             return await step.continueDialog();
         }
@@ -100,7 +100,7 @@ class CreateAlertDialog extends ComponentDialog {
             step.values.value = step.result;
         }
         if (!step.values.condition) {
-            return await step.prompt(CONDITION_PROMPT, 'Select the condition', ['Less', 'Equal', 'More', 'Less or Equal', 'More or Equal'])
+            return await step.prompt(CONDITION_PROMPT, 'Select the condition', ['Less', 'Equal', 'More'])
         } else {
             return await step.continueDialog();
         }
@@ -108,18 +108,22 @@ class CreateAlertDialog extends ComponentDialog {
 
     async confirmStep(step) {
         if (!step.values.condition) {
-            step.values.condition = step.result;
+            step.values.condition = step.result.score ? step.result.value : step.result;
         }
-        return await step.prompt(CONFIRM_PROMPT, 'Are you sure that all values are correct and you want to create a alert?', ['yes', 'no']);
+        return await step.prompt(CONFIRM_PROMPT, 'Do want to create the alert?', ['yes', 'no']);
     }
 
     async summaryStep(step) {
         console.log("final", step.values);
         if (step.result === true) {
-            await step.context.sendActivity("Alert successfully created.");
+            let cardJson = JSON.parse(JSON.stringify(AlertCard));
+            cardJson.body[0].columns[0].items[0].text = `Alert Name : ${step.values.name}`;
+            cardJson.body[0].columns[0].items[1].text = `Metrics : ${step.values.metrics}`;
+            cardJson.body[0].columns[0].items[2].text = `${step.values.condition} ${step.values.value}`;
+            let adaptiveCard = CardFactory.adaptiveCard(cardJson);
             await step.context.sendActivity({
-                text: 'Here is an Adaptive Card:',
-                attachments: [CardFactory.adaptiveCard(AlertCard)]
+                text: 'Alert successfully created.',
+                attachments: [adaptiveCard]
             });
             endDialog = true;
             return await step.endDialog();

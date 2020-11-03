@@ -110,7 +110,7 @@ class ALERTBOT extends ActivityHandler {
     async sendHelpActions(turnContext, next) {
         const card = CardFactory.heroCard(
             'Here is the help you wanted',
-            `Type 'suggestion' for suggested actions and for detailed documentation here are the links`,
+            `Type 'suggestion' or greet me with 'Hello' to get me started and for detailed documentation here are the links`,
             [],
             [{
                 type: ActionTypes.OpenUrl,
@@ -127,7 +127,7 @@ class ALERTBOT extends ActivityHandler {
     }
 
     async sendSuggestedActions(turnContext) {
-        const reply = MessageFactory.suggestedActions(['Alerts', 'Reports', 'Create Alert', 'Create Report', 'Help'], 'What would you like to do today ?');
+        const reply = MessageFactory.suggestedActions(['Reports','Alerts', 'Create Alert', 'Help'], 'What would you like to do today ?');
         await turnContext.sendActivity(reply);
     }
 

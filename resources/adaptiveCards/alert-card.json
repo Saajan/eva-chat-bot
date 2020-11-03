@@ -4,7 +4,7 @@
     "version": "1.0",
     "body": [
       {
-        "speak": "Tom's Pie is a Pizza restaurant which is rated 9.3 by customers.",
+        "speak": "Alert is created.",
         "type": "ColumnSet",
         "columns": [
           {
@@ -13,21 +13,18 @@
             "items": [
               {
                 "type": "TextBlock",
-                "text": "${step.values.name}"
+                "text": ""
               },
               {
                 "type": "TextBlock",
-                "text": "${step.values.value}",
+                "text": "",
                 "weight": "bolder",
-                "size": "extraLarge",
-                "spacing": "none"
+                "size": "extraLarge"
               },
               {
                 "type": "TextBlock",
-                "text": "${step.values.condition}",
-                "size": "small",
-                "wrap": true,
-                "maxLines": 3
+                "text": "",
+                "size": "Medium"
               }
             ]
           },
@@ -37,7 +34,7 @@
             "items": [
               {
                 "type": "Image",
-                "url": "${image}",
+                "url": "https://via.placeholder.com/150/FF0000/FFFFFF?Text=Alert",
                 "size": "auto"
               }
             ]
