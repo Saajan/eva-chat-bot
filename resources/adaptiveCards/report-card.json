@@ -5,7 +5,7 @@
     "fallbackText": "This card has image",
     "body": [{
         "type": "Image",
-        "url": "",
+        "url": "https://via.placeholder.com/500/FF0000/FFFFFF?Text=Alert",
         "size": "auto"
     }],
     "actions": [{
