@@ -1,0 +1,16 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.0",
+    "fallbackText": "This card has image",
+    "body": [{
+        "type": "Image",
+        "url": "",
+        "size": "auto"
+    }],
+    "actions": [{
+        "type": "Action.OpenUrl",
+        "title": "Open Report",
+        "url": "http://localhost:3000"
+    }]
+}

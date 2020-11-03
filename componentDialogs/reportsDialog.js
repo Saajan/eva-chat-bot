@@ -8,7 +8,7 @@ const {
     DialogTurnStatus
 } = require('botbuilder-dialogs');
 
-const AlertCard = require('../resources/adaptiveCards/alert-card.json');
+const ReportCard = require('../resources/adaptiveCards/report-card.json');
 
 const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
 const RANGE_PROMPT = 'RANGE_PROMPT';
@@ -63,7 +63,7 @@ class ReportsDialog extends ComponentDialog {
         if (step.result === true) {
             await step.context.sendActivity({
                 text: 'Here is the report',
-                attachments: [CardFactory.adaptiveCard(AlertCard)]
+                attachments: [CardFactory.adaptiveCard(ReportCard)]
             });
             endDialog = true;
             return await step.endDialog();
