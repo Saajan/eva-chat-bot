@@ -114,7 +114,7 @@ class CreateAlertDialog extends ComponentDialog {
     }
 
     async summaryStep(step) {
-        console.log("final", step.values);
+        // console.log("final", step.values);
         if (step.result === true) {
             let cardJson = JSON.parse(JSON.stringify(AlertCard));
             cardJson.body[0].columns[0].items[0].text = `Alert Name : ${step.values.name}`;

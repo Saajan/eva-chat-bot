@@ -127,7 +127,8 @@ class ALERTBOT extends ActivityHandler {
     }
 
     async sendSuggestedActions(turnContext) {
-        const reply = MessageFactory.suggestedActions(['Reports','Alerts', 'Create Alert', 'Help'], 'What would you like to do today ?');
+        const userProfile = await this.userProfileAccessor.get(turnContext, {});
+        const reply = MessageFactory.suggestedActions(['Reports', 'Alerts', 'Create Alert', 'Help'], `Hello ${userProfile.name}, What would you like to do now ?`);
         await turnContext.sendActivity(reply);
     }
 
@@ -150,7 +151,6 @@ class ALERTBOT extends ActivityHandler {
         }
         switch (currentIntentRunning) {
             case 'alerts':
-                console.log("Alert Case");
                 await this.conversationDataAccessor.set(context, { endDialog: false });
                 await this.alertsDialog.run(context, this.dialogState);
                 conversationData.endDialog = await this.alertsDialog.isDialogComplete();
@@ -160,7 +160,6 @@ class ALERTBOT extends ActivityHandler {
                 }
                 break;
             case 'reports':
-                console.log("Inside reports");
                 await this.conversationDataAccessor.set(context, { endDialog: false });
                 await this.reportsDialog.run(context, this.dialogState);
                 conversationData.endDialog = await this.reportsDialog.isDialogComplete();
@@ -170,7 +169,6 @@ class ALERTBOT extends ActivityHandler {
                 }
                 break;
             case 'create_alert':
-                console.log("Inside Make Alert Case");
                 await this.conversationDataAccessor.set(context, { endDialog: false });
                 await this.createAlertDialog.run(context, this.dialogState, entities);
                 conversationData.endDialog = await this.createAlertDialog.isDialogComplete();
