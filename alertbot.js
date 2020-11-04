@@ -49,7 +49,7 @@ class ALERTBOT extends ActivityHandler {
                     await this.sendSuggestedActions(context);
                 } else {
                     await this.conversationDataAccessor.set(context, { endDialog: false });
-                    await this.loginDialog.run(context, this.dialogState);
+                    await this.loginDialog.run(context, this.dialogState, this.conversationReferences);
                     conversationData.endDialog = await this.loginDialog.isDialogComplete();
                     if (conversationData.endDialog) {
                         conversationData.promptedForUsername = true;
