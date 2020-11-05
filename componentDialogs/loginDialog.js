@@ -63,6 +63,7 @@ class LoginDialog extends ComponentDialog {
             endDialog = true;
             return await step.endDialog();
         } catch (error) {
+            await this.userProfileAccessor.set(step.context, step.values);
             endDialog = true;
             await step.context.sendActivity("Sorry, we were not able to complete your request.");
             return await step.endDialog();

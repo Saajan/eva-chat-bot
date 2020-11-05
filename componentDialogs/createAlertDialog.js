@@ -9,6 +9,7 @@ const {
     DialogSet,
     DialogTurnStatus
 } = require('botbuilder-dialogs');
+const axios = require('axios');
 
 const AlertCard = require('../resources/adaptiveCards/alert-card.json');
 
@@ -86,7 +87,7 @@ class CreateAlertDialog extends ComponentDialog {
 
     async getValue(step) {
         if (!step.values.metrics) {
-            step.values.metrics = step.result;
+            step.values.metrics = step.result.score ? step.result.value : step.result;
         }
         if (!step.values.value) {
             return await step.prompt(NUMBER_PROMPT, 'value')
@@ -114,19 +115,33 @@ class CreateAlertDialog extends ComponentDialog {
     }
 
     async summaryStep(step) {
-        // console.log("final", step.values);
+        const userProfile = await this.userState.get(step.context, {});
+        const conversationId = userProfile.userProfile ? userProfile.userProfile.conversionId : '';
         if (step.result === true) {
-            let cardJson = JSON.parse(JSON.stringify(AlertCard));
-            cardJson.body[0].columns[0].items[0].text = `Alert Name : ${step.values.name}`;
-            cardJson.body[0].columns[0].items[1].text = `Metrics : ${step.values.metrics}`;
-            cardJson.body[0].columns[0].items[2].text = `${step.values.condition} ${step.values.value}`;
-            let adaptiveCard = CardFactory.adaptiveCard(cardJson);
-            await step.context.sendActivity({
-                text: 'Alert successfully created.',
-                attachments: [adaptiveCard]
-            });
-            endDialog = true;
-            return await step.endDialog();
+            try {
+                const response = await axios.post(`${process.env.ApiUrl}/api/v1/alert/`, {
+                    name: step.values.name,
+                    metric: step.values.metrics,
+                    condition: step.values.condition,
+                    value: step.values.value,
+                    user_id: conversationId
+                });
+                let cardJson = JSON.parse(JSON.stringify(AlertCard));
+                cardJson.body[0].columns[0].items[0].text = `Alert Name : ${step.values.name}`;
+                cardJson.body[0].columns[0].items[1].text = `Metrics : ${step.values.metrics}`;
+                cardJson.body[0].columns[0].items[2].text = `${step.values.condition} ${step.values.value}`;
+                let adaptiveCard = CardFactory.adaptiveCard(cardJson);
+                await step.context.sendActivity({
+                    text: 'Alert successfully created.',
+                    attachments: [adaptiveCard]
+                });
+                endDialog = true;
+                return await step.endDialog();
+            } catch (error) {
+                endDialog = true;
+                await step.context.sendActivity("Sorry, we were not able to complete your request.");
+                return await step.endDialog();
+            }
         } else if (step.result === false) {
             await step.context.sendActivity("You chose not to create the alert.");
             endDialog = true;
