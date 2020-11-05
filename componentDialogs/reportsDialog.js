@@ -7,6 +7,7 @@ const {
     DialogSet,
     DialogTurnStatus
 } = require('botbuilder-dialogs');
+const axios = require('axios');
 
 const ReportCard = require('../resources/adaptiveCards/report-card.json');
 
@@ -53,20 +54,39 @@ class ReportsDialog extends ComponentDialog {
 
     async confirmStep(step) {
         if (!step.values.range) {
-            step.values.range = step.result;
+            step.values.range = step.result.score ? step.result.value : step.result;
         }
         return await step.prompt(CONFIRM_PROMPT, `Should i create report for ${step.values.range}?`, ['yes', 'no']);
     }
 
     async summaryStep(step) {
         console.log("final", step.values);
+        const userProfile = await this.userState.get(step.context, {});
+        const name = userProfile.userProfile ? userProfile.userProfile.name : '';
         if (step.result === true) {
-            await step.context.sendActivity({
-                text: 'Here is the report',
-                attachments: [CardFactory.adaptiveCard(ReportCard)]
-            });
-            endDialog = true;
-            return await step.endDialog();
+            try {
+                const response = await axios.post(`${process.env.ApiUrl}/api/v1/screenshot/`, {
+                    type: "dashboard",
+                    range: step.values.range,
+                    name: name
+                });
+                let cardJson = JSON.parse(JSON.stringify(ReportCard));
+                console.log(`${process.env.ApiUrl}/images/screenshot/${name}.png`);
+                cardJson.body[0].url = `${process.env.ApiUrl}/images/screenshot/${name}.png`;
+                cardJson.actions[0].url = `${process.env.AppUrl}/dashboard?name=${name}&range=${step.values.range}`;
+                let adaptiveCard = CardFactory.adaptiveCard(cardJson);
+                await step.context.sendActivity({
+                    text: 'Here is the report',
+                    attachments: [adaptiveCard]
+                });
+                endDialog = true;
+                return await step.endDialog();
+            } catch (error) {
+                endDialog = true;
+                await step.context.sendActivity("Sorry, we were not able to complete your request.");
+                return await step.endDialog();
+            }
+            
         } else if (step.result === false) {
             await step.context.sendActivity("You chose not to create the report");
             endDialog = true;
