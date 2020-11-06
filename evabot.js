@@ -13,7 +13,7 @@ const CONVERSATION_DATA = 'conversationData';
 const DIALOG_STATE = 'dialogState';
 const PREVIOUS_INTENT = 'previousIntent';
 
-class ALERTBOT extends ActivityHandler {
+class EVABOT extends ActivityHandler {
     constructor(conversationState, userState, conversationReferences) {
         super();
         this.userProfileAccessor = userState.createProperty(USER_PROFILE);
@@ -190,4 +190,4 @@ class ALERTBOT extends ActivityHandler {
     }
 }
 
-module.exports.ALERTBOT = ALERTBOT;
+module.exports.EVABOT = EVABOT;

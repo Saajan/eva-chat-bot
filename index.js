@@ -10,7 +10,7 @@ const restify = require('restify');
 const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
 
 // This bot's main dialog.
-const { ALERTBOT } = require('./alertbot');
+const { EVABOT } = require('./evabot');
 
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
@@ -61,13 +61,13 @@ adapter.onTurnError = onTurnErrorHandler;
 const conversationReferences = {};
 
 // Create the main dialog.
-const alertBot = new ALERTBOT(conversationState, userState, conversationReferences);
+const evaBot = new EVABOT(conversationState, userState, conversationReferences);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
-        await alertBot.run(context);
+        await evaBot.run(context);
     });
 });
 
