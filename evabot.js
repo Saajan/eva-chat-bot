@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 const { ActivityHandler, MessageFactory, TurnContext, CardFactory, ActionTypes } = require('botbuilder');
-const { LuisRecognizer } = require('botbuilder-ai');
+const { LuisRecognizer, QnAMaker } = require('botbuilder-ai');
 const { CreateAlertDialog } = require('./componentDialogs/createAlertDialog');
 const { AlertsDialog } = require('./componentDialogs/alertsDialog');
 const { ReportsDialog } = require('./componentDialogs/reportsDialog');
@@ -36,6 +36,14 @@ class EVABOT extends ActivityHandler {
         }, {
             includeAllIntents: true
         }, true);
+
+        const qnaMaker = new QnAMaker({
+            knowledgeBaseId: process.env.QnAKnowledgeBaseId,
+            endpointKey: process.env.QnAEndpointKey,
+            host: process.env.QnAEndpointHostName
+        });
+
+        this.qnaMaker = qnaMaker;
 
         // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
         this.onMessage(async (context, next) => {
@@ -123,12 +131,11 @@ class EVABOT extends ActivityHandler {
             }]
         );
         await turnContext.sendActivity({ attachments: [card] });
-        await next();
     }
 
     async sendSuggestedActions(turnContext) {
         const userProfile = await this.userProfileAccessor.get(turnContext, {});
-        const reply = MessageFactory.suggestedActions(['Reports', 'Alerts', 'Create Alert', 'Help'], `Hello ${userProfile.name}, What would you like to do now ?`);
+        const reply = MessageFactory.suggestedActions(['Reports', 'Alerts', 'Create Alert', 'Help'], `Hello ${userProfile.name}, Here's the suggestions?`);
         await turnContext.sendActivity(reply);
     }
 
@@ -136,10 +143,20 @@ class EVABOT extends ActivityHandler {
         let currentIntent = '';
         const previousIntent = await this.previousIntentAccessor.get(context, {});
         const conversationData = await this.conversationDataAccessor.get(context, {});
+        console.log(intent, entities, previousIntent, conversationData);
         if (previousIntent.intentName && conversationData.endDialog === false) {
             currentIntent = previousIntent.intentName;
         } else if (previousIntent.intentName && conversationData.endDialog === true) {
             currentIntent = intent;
+        } else if (intent == "None" && !previousIntent.intentName) {
+            let result = await this.qnaMaker.getAnswers(context);
+            if (result.length > 0) {
+                await context.sendActivity(`${result[0].answer}`);
+            } else {
+                conversationData.endDialog = true;
+                await this.previousIntentAccessor.set(context, { intentName: undefined });
+                intent = 'suggestion'
+            }
         } else {
             currentIntent = intent;
             await this.previousIntentAccessor.set(context, { intentName: intent });
@@ -149,6 +166,7 @@ class EVABOT extends ActivityHandler {
             currentIntentRunning = 'suggestion';
             await this.previousIntentAccessor.set(context, { intentName: null });
         }
+        console.log(currentIntentRunning);
         switch (currentIntentRunning) {
             case 'alerts':
                 await this.conversationDataAccessor.set(context, { endDialog: false });
@@ -179,12 +197,13 @@ class EVABOT extends ActivityHandler {
                 break;
             case 'help':
                 await this.sendHelpActions(context, next);
+                await this.previousIntentAccessor.set(context, { intentName: null });
                 break;
             case 'suggestion':
                 await this.sendSuggestedActions(context);
                 break;
             default:
-                await context.sendActivity(`I did not follow what you asked me to do. But don't worry.  Type 'Help' to understand me better.`);
+                await context.sendActivity(`If you want to know what all i can do.Type 'help'.`);
                 break;
         }
     }
