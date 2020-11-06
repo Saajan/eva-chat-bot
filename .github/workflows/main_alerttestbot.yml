@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - alerttestbot
+name: Build and deploy Node.js app to Azure Web App - eva-chat-bot
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'alerttestbot'
+        app-name: 'eva-chat-bot'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_270d4eac75264e1192de4a9e459e9b0d }}
         package: .
