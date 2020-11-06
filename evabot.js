@@ -143,7 +143,6 @@ class EVABOT extends ActivityHandler {
         let currentIntent = '';
         const previousIntent = await this.previousIntentAccessor.get(context, {});
         const conversationData = await this.conversationDataAccessor.get(context, {});
-        console.log(intent, entities, previousIntent, conversationData);
         if (previousIntent.intentName && conversationData.endDialog === false) {
             currentIntent = previousIntent.intentName;
         } else if (previousIntent.intentName && conversationData.endDialog === true) {
@@ -166,7 +165,6 @@ class EVABOT extends ActivityHandler {
             currentIntentRunning = 'suggestion';
             await this.previousIntentAccessor.set(context, { intentName: null });
         }
-        console.log(currentIntentRunning);
         switch (currentIntentRunning) {
             case 'alerts':
                 await this.conversationDataAccessor.set(context, { endDialog: false });

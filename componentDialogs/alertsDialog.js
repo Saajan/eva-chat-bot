@@ -29,6 +29,7 @@ class AlertsDialog extends ComponentDialog {
             this.confirmStep.bind(this),
             this.summaryStep.bind(this)
         ]));
+        this.userState = userState;
         this.initialDialogId = WATERFALL_DIALOG;
     }
 
@@ -43,19 +44,26 @@ class AlertsDialog extends ComponentDialog {
     }
 
     async firstStep(step) {
-        endDialog = false;
-        //axios.get('http://localhost:3000/alert')
-        //.then(function (response) {
-        //let { data } = response;
-        // console.log(data);
-        //})
-        //.catch(function (error) {
-        // console.log(error);
-        //})
-        //.then(function () {
+        const userProfile = await this.userState.get(step.context, {});
+        const conversationId = userProfile.userProfile ? userProfile.userProfile.conversionId : '';
+        try {
+            const response = await axios.get(`${process.env.ApiUrl}/api/v1/user/${conversationId}/alerts`);
+            let { data: { data } } = response;
+            endDialog = false;
+            if (data.length > 0) {
+                let alerts = data.map(alert => alert.name);
+                return await step.prompt(CHOICE_PROMPT, `Here are your alerts. Select any one of them to Edit or Delete.`, alerts);
+            } else {
+                endDialog = true;
+                await step.context.sendActivity("You dont have any alerts.");
+                return await step.endDialog();
+            }
+        } catch (error) {
+            endDialog = true;
+            await step.context.sendActivity("Sorry, we were not able to complete your request.");
+            return await step.endDialog();
+        }
 
-        //});
-        return await step.prompt(CHOICE_PROMPT, `Here are your alerts. Select any one of them to Edit or Delete.`, ['Alert 1', 'Alert 2']);
     }
 
     async confirmStep(step) {

@@ -60,7 +60,6 @@ class ReportsDialog extends ComponentDialog {
     }
 
     async summaryStep(step) {
-        console.log("final", step.values);
         const userProfile = await this.userState.get(step.context, {});
         const name = userProfile.userProfile ? userProfile.userProfile.name : '';
         if (step.result === true) {
