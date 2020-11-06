@@ -4,13 +4,17 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
+const restifyBodyParser = require('restify-plugins').bodyParser;
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
+const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState, CardFactory } = require('botbuilder');
 
 // This bot's main dialog.
 const { EVABOT } = require('./evabot');
+
+const AlertNotifyCard = require('./resources/adaptiveCards/alert-notify-card.json');
+const AllNotifyCard = require('./resources/adaptiveCards/all-notify-card.json');
 
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
@@ -22,6 +26,7 @@ const userState = new UserState(memoryStorage);
 
 // Create HTTP server
 const server = restify.createServer();
+server.use(restifyBodyParser());
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
     console.log('\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator');
@@ -72,26 +77,48 @@ server.post('/api/messages', (req, res) => {
 });
 
 // Listen for incoming notifications and send proactive messages to users.
-server.get('/api/notify/all', async (req, res) => {
+server.post('/api/notify/all', async (req, res) => {
     for (const conversationReference of Object.values(conversationReferences)) {
+        const { title, description, type, baseURL } = req.body;
+        console.log(title, description, type, baseURL)
         await adapter.continueConversation(conversationReference, async turnContext => {
-            await turnContext.sendActivity('proactive hello');
+            let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
+            cardJson.body[0].columns[0].items[0].text = `**${title}**`;
+            cardJson.body[0].columns[0].items[1].text = `**${type}**`;
+            cardJson.body[0].columns[0].items[2].text = `_${description}_`;
+            cardJson.body[0].columns[1].items[0].url = `https://via.placeholder.com/150/FF00FF/FFFFFF?Text=Alert`;
+            cardJson.actions[0].url = `${process.env.ApiUrl}${baseURL}`;
+            const adaptiveCard = CardFactory.adaptiveCard(cardJson);
+            await turnContext.sendActivity({
+                text: '',
+                attachments: [adaptiveCard]
+            });
         });
     }
-    res.setHeader('Content-Type', 'text/html');
-    res.writeHead(200);
-    res.write('<html><body><h1>Proactive messages have been sent to all.</h1></body></html>');
-    res.end();
+    await res.send('success');
+    await res.end();
 });
 
-server.get('/api/notify/:conversationID', async (req, res) => {
+server.post('/api/notify/:conversationID', async (req, res) => {
     const { conversationID } = req.params;
+    const { trigger_value, diagnostic_url, metric, condition, value, name, trigger_date } = req.body;
     const conversationReference = conversationReferences[conversationID];
-    await adapter.continueConversation(conversationReference, async turnContext => {
-        await turnContext.sendActivity('proactive hello');
-    });
-    res.setHeader('Content-Type', 'text/html');
-    res.writeHead(200);
-    res.write(`<html><body><h1>Proactive messages have been sent to ${conversationID}.</h1></body></html>`);
-    res.end();
+    if (conversationReferences[conversationID]) {
+        await adapter.continueConversation(conversationReference, async turnContext => {
+            let cardJson = JSON.parse(JSON.stringify(AlertNotifyCard));
+            cardJson.body[0].columns[0].items[0].text = `_Alert Name_ : **${name}**`;
+            cardJson.body[0].columns[0].items[1].text = `_Metrics_ : **${metric}**`;
+            cardJson.body[0].columns[0].items[2].text = `_Condition_ : **${condition} ${value}**`;
+            cardJson.body[0].columns[0].items[3].text = `**${trigger_value}**`;
+            cardJson.body[0].columns[0].items[4].text = `_${trigger_date}_`;
+            cardJson.actions[0].url = `${process.env.ApiUrl}${diagnostic_url}`;
+            const adaptiveCard = CardFactory.adaptiveCard(cardJson);
+            await turnContext.sendActivity({
+                text: '',
+                attachments: [adaptiveCard]
+            });
+        });
+    }
+    await res.send('success');
+    await res.end();
 });

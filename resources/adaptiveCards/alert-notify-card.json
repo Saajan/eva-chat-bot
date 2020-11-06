@@ -1,0 +1,63 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.0",
+    "body": [
+      {
+        "speak": "Alert Notification.",
+        "type": "ColumnSet",
+        "columns": [
+          {
+            "type": "Column",
+            "width": 2,
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": ""
+              },
+              {
+                "type": "TextBlock",
+                "text": "",
+                "weight": "bolder",
+                "size": "Large"
+              },
+              {
+                "type": "TextBlock",
+                "text": "",
+                "size": "Medium",
+                "isSubtle": true
+              },
+              {
+                "type": "TextBlock",
+                "text": "",
+                "size": "extraLarge"
+              },
+              {
+                "type": "TextBlock",
+                "text": "",
+                "size": "small",
+                "isSubtle": true
+              }
+            ]
+          },
+          {
+            "type": "Column",
+            "width": 1,
+            "items": [
+              {
+                "type": "Image",
+                "url": "https://via.placeholder.com/150/FF0000/FFFFFF?Text=Alert",
+                "size": "auto"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [{
+        "type": "Action.OpenUrl",
+        "title": "Open Alert Diagnostics",
+        "url": "http://localhost:3000"
+    }]
+  }
+  
