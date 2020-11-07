@@ -16,6 +16,7 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "applicationinsights": "^1.8.8",
         "axios": "^0.20.0",
         "botbuilder": "~4.7.0",
         "botbuilder-ai": "^4.10.4",

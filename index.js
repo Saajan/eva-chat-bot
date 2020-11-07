@@ -4,6 +4,7 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
+let appInsights = require('applicationinsights');
 const restifyBodyParser = require('restify-plugins').bodyParser;
 const axios = require('axios');
 
@@ -21,6 +22,8 @@ const AllNotifyCard = require('./resources/adaptiveCards/all-notify-card.json');
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
 const memoryStorage = new MemoryStorage();
+
+appInsights.setup(`${process.env.InstrumentationKey}`).start();
 
 const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
