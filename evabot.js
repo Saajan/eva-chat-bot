@@ -14,14 +14,14 @@ const DIALOG_STATE = 'dialogState';
 const PREVIOUS_INTENT = 'previousIntent';
 
 class EVABOT extends ActivityHandler {
-    constructor(conversationState, userState, conversationReferences) {
+    constructor(conversationState, userState, getAllUsers) {
         super();
         this.userProfileAccessor = userState.createProperty(USER_PROFILE);
         this.conversationDataAccessor = conversationState.createProperty(CONVERSATION_DATA);
         this.previousIntentAccessor = conversationState.createProperty(PREVIOUS_INTENT);
         this.dialogState = conversationState.createProperty(DIALOG_STATE);
 
-        this.conversationReferences = conversationReferences;
+        this.getAllUsers = getAllUsers;
         this.conversationState = conversationState;
         this.userState = userState;
         this.createAlertDialog = new CreateAlertDialog(this.conversationState, this.userState);
@@ -53,13 +53,14 @@ class EVABOT extends ActivityHandler {
                 if (conversationData.promptedForUsername) {
                     userProfile.name = context.activity.text;
                     await context.sendActivity(`Thanks ${userProfile.name}. Welcome to Alert bot.`);
-                    conversationData.promptedForUsername = false;
+                    conversationData.promptedForUsername = true;
                     await this.sendSuggestedActions(context);
                 } else {
                     await this.conversationDataAccessor.set(context, { endDialog: false });
-                    await this.loginDialog.run(context, this.dialogState, this.conversationReferences);
+                    await this.loginDialog.run(context, this.dialogState, userProfile);
                     conversationData.endDialog = await this.loginDialog.isDialogComplete();
                     if (conversationData.endDialog) {
+                        await this.getAllUsers();
                         conversationData.promptedForUsername = true;
                         await this.sendSuggestedActions(context);
                     } else {
@@ -78,7 +79,7 @@ class EVABOT extends ActivityHandler {
         });
 
         this.onConversationUpdate(async (context, next) => {
-            this.addConversationReference(context.activity);
+            this.addConversationReference(context);
             await next();
         });
 
@@ -100,9 +101,11 @@ class EVABOT extends ActivityHandler {
         });
     }
 
-    async addConversationReference(activity) {
-        const conversationReference = TurnContext.getConversationReference(activity);
-        this.conversationReferences[conversationReference.conversation.id] = conversationReference;
+    async addConversationReference(context) {
+        const conversationReference = await TurnContext.getConversationReference(context.activity);
+        await this.userProfileAccessor.set(context, {
+            meta: conversationReference
+        });
     };
 
     async sendWelcomeMessage(turnContext) {

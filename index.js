@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
 const restifyBodyParser = require('restify-plugins').bodyParser;
+const axios = require('axios');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
@@ -63,10 +64,20 @@ const onTurnErrorHandler = async (context, error) => {
 // Set the onTurnError for the singleton BotFrameworkAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-const conversationReferences = {};
+let conversationReferences = [];
+
+const getAllUsers = async () => {
+    try {
+        const response = await axios.get(`${process.env.ApiUrl}/api/v1/user/all`);
+        const { data: { data } } = response;
+        conversationReferences = data;
+    } catch (error) {
+        conversationReferences = [];
+    }
+};
 
 // Create the main dialog.
-const evaBot = new EVABOT(conversationState, userState, conversationReferences);
+const evaBot = new EVABOT(conversationState, userState, getAllUsers);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
@@ -78,10 +89,10 @@ server.post('/api/messages', (req, res) => {
 
 // Listen for incoming notifications and send proactive messages to users.
 server.post('/api/notify/all', async (req, res) => {
-    for (const conversationReference of Object.values(conversationReferences)) {
-        const { title, description, type, baseURL } = req.body;
-        console.log(title, description, type, baseURL)
-        await adapter.continueConversation(conversationReference, async turnContext => {
+    const { title, description, type, baseURL } = req.body;
+    let promises = conversationReferences.map(async profile => {
+        const { meta } = profile;
+        await adapter.continueConversation(meta, async turnContext => {
             let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `**${title}**`;
             cardJson.body[0].columns[0].items[1].text = `**${type}**`;
@@ -94,17 +105,27 @@ server.post('/api/notify/all', async (req, res) => {
                 attachments: [adaptiveCard]
             });
         });
+    });
+
+    try {
+        let data = await Promise.all(promises);
+        await res.send('success');
+        await res.status(200);
+        await res.end();
+    } catch (error) {
+        await res.send('error');
+        await res.status(404);
+        await res.end();
     }
-    await res.send('success');
-    await res.end();
 });
 
 server.post('/api/notify/:conversationID', async (req, res) => {
     const { conversationID } = req.params;
     const { trigger_value, diagnostic_url, metric, condition, value, name, trigger_date } = req.body;
-    const conversationReference = conversationReferences[conversationID];
-    if (conversationReferences[conversationID]) {
-        await adapter.continueConversation(conversationReference, async turnContext => {
+    const conversationReference = await conversationReferences.find(o => o.id == conversationID);
+    if (conversationReference.id) {
+        const { meta } = conversationReference;
+        await adapter.continueConversation(meta, async turnContext => {
             let cardJson = JSON.parse(JSON.stringify(AlertNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `_Alert Name_ : **${name}**`;
             cardJson.body[0].columns[0].items[1].text = `_Metrics_ : **${metric}**`;
@@ -118,7 +139,14 @@ server.post('/api/notify/:conversationID', async (req, res) => {
                 attachments: [adaptiveCard]
             });
         });
+        await res.send('success');
+        await res.status(200);
+        await res.end();
+    } else {
+        await res.send('error');
+        await res.status(404);
+        await res.end();
     }
-    await res.send('success');
-    await res.end();
 });
+
+getAllUsers();
