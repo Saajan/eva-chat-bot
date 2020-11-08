@@ -70,6 +70,7 @@ adapter.onTurnError = onTurnErrorHandler;
 let conversationReferences = [];
 
 const getAllUsers = async () => {
+    BotConnector.MicrosoftAppCredentials.trustServiceUrl('https://slack.botframework.com/');
     try {
         const response = await axios.get(`${process.env.ApiUrl}/api/v1/user/all`);
         const { data: { data } } = response;
@@ -96,8 +97,6 @@ server.post('/api/notify/all', async (req, res) => {
     let promises = conversationReferences.map(async profile => {
         const { meta } = profile;
         await adapter.continueConversation(meta, async turnContext => {
-            await turnContext.sendActivity(`Notification : ${title} of type ${type} triggered. ${description}`);
-            await turnContext.sendActivity(`Link : ${process.env.AppUrl}/${type}`);
             let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `**${title}**`;
             cardJson.body[0].columns[0].items[1].text = `**${type}**`;
@@ -131,8 +130,6 @@ server.post('/api/notify/:conversationID', async (req, res) => {
     if (conversationReference.id) {
         const { meta } = conversationReference;
         await adapter.continueConversation(meta, async turnContext => {
-            await turnContext.sendActivity(`Alert : ${name} is triggered at ${trigger_date} for value ${trigger_value} in ${metric}`);
-            await turnContext.sendActivity(`Link : ${process.env.AppUrl}/help`);
             let cardJson = JSON.parse(JSON.stringify(AlertNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `_Alert Name_ : **${name}**`;
             cardJson.body[0].columns[0].items[1].text = `_Metrics_ : **${metric}**`;
