@@ -96,6 +96,8 @@ server.post('/api/notify/all', async (req, res) => {
     let promises = conversationReferences.map(async profile => {
         const { meta } = profile;
         await adapter.continueConversation(meta, async turnContext => {
+            await turnContext.sendActivity(`Notification : ${title} of type ${type} triggered. ${description}`);
+            await turnContext.sendActivity(`Link : ${process.env.AppUrl}/${type}`);
             let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `**${title}**`;
             cardJson.body[0].columns[0].items[1].text = `**${type}**`;
@@ -103,8 +105,6 @@ server.post('/api/notify/all', async (req, res) => {
             cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
             cardJson.actions[0].url = `${process.env.AppUrl}/${type}`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
-            await context.sendActivity(`Notification : ${title} of type ${type} triggered. ${description}`);
-            await context.sendActivity(`Link : ${process.env.AppUrl}/${type}`);
             await turnContext.sendActivity({
                 text: '',
                 attachments: [adaptiveCard]
@@ -131,6 +131,8 @@ server.post('/api/notify/:conversationID', async (req, res) => {
     if (conversationReference.id) {
         const { meta } = conversationReference;
         await adapter.continueConversation(meta, async turnContext => {
+            await turnContext.sendActivity(`Alert : ${name} is triggered at ${trigger_date} for value ${trigger_value} in ${metric}`);
+            await turnContext.sendActivity(`Link : ${process.env.AppUrl}/help`);
             let cardJson = JSON.parse(JSON.stringify(AlertNotifyCard));
             cardJson.body[0].columns[0].items[0].text = `_Alert Name_ : **${name}**`;
             cardJson.body[0].columns[0].items[1].text = `_Metrics_ : **${metric}**`;
@@ -139,8 +141,6 @@ server.post('/api/notify/:conversationID', async (req, res) => {
             cardJson.body[0].columns[0].items[4].text = `_${trigger_date}_`;
             cardJson.actions[0].url = `${process.env.AppUrl}/help`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
-            await context.sendActivity(`Alert : ${name} is triggered at ${trigger_date} for value ${trigger_value}`);
-            await context.sendActivity(`Link : ${process.env.AppUrl}/help`);
             await turnContext.sendActivity({
                 text: '',
                 attachments: [adaptiveCard]
