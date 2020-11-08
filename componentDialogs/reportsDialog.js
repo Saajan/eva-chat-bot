@@ -63,6 +63,7 @@ class ReportsDialog extends ComponentDialog {
         const userProfile = await this.userState.get(step.context, {});
         const name = userProfile.userProfile ? userProfile.userProfile.name : '';
         if (step.result === true) {
+            await step.context.sendActivity("Please wait while i create your report.");
             try {
                 const response = await axios.post(`${process.env.ApiUrl}/api/v1/screenshot/`, {
                     type: "dashboard",

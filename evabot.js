@@ -112,7 +112,7 @@ class EVABOT extends ActivityHandler {
         const { activity } = turnContext;
         for (const idx in activity.membersAdded) {
             if (activity.membersAdded[idx].id !== activity.recipient.id) {
-                const welcomeMessage = `Welcome to Conviva, Type anything to get started. `;
+                const welcomeMessage = `Welcome to Eva Bot, Type anything to get started. `;
                 await turnContext.sendActivity(welcomeMessage);
             }
         }
@@ -121,16 +121,16 @@ class EVABOT extends ActivityHandler {
     async sendHelpActions(turnContext, next) {
         const card = CardFactory.heroCard(
             'Here is the help you wanted',
-            `Type 'suggestion' or greet me with 'Hello' to get me started and for detailed documentation here are the links`,
+            `Type 'suggestion' to get me started and for detailed documentation here are the links`,
             [],
             [{
                 type: ActionTypes.OpenUrl,
                 title: 'Get the Overview',
-                value: 'https://www.google.com'
+                value: `${process.env.AppUrl}/help`
             }, {
                 type: ActionTypes.OpenUrl,
                 title: 'Ask a Question',
-                value: 'https://www.google.com'
+                value: `${process.env.AppUrl}/help`
             }]
         );
         await turnContext.sendActivity({ attachments: [card] });
@@ -138,7 +138,7 @@ class EVABOT extends ActivityHandler {
 
     async sendSuggestedActions(turnContext) {
         const userProfile = await this.userProfileAccessor.get(turnContext, {});
-        const reply = MessageFactory.suggestedActions(['Reports', 'Alerts', 'Create Alert', 'Help'], `Hello ${userProfile.name}, Here's the suggestions?`);
+        const reply = MessageFactory.suggestedActions(['Reports', 'Alerts', 'Create Alert', 'Help'], `Hello ${userProfile.name}, Here's some suggestions?`);
         await turnContext.sendActivity(reply);
     }
 

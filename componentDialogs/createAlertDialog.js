@@ -90,7 +90,7 @@ class CreateAlertDialog extends ComponentDialog {
             step.values.metrics = step.result.score ? step.result.value : step.result;
         }
         if (!step.values.value) {
-            return await step.prompt(NUMBER_PROMPT, 'value')
+            return await step.prompt(NUMBER_PROMPT, 'Enter the threshold value')
         } else {
             return await step.continueDialog();
         }
@@ -119,6 +119,7 @@ class CreateAlertDialog extends ComponentDialog {
         const conversationId = userProfile.userProfile ? userProfile.userProfile.conversionId : '';
         if (step.result === true) {
             try {
+                await step.context.sendActivity("Please wait while i create the alert for you.");
                 const response = await axios.post(`${process.env.ApiUrl}/api/v1/alert/`, {
                     name: step.values.name,
                     metric: step.values.metrics,
@@ -130,6 +131,7 @@ class CreateAlertDialog extends ComponentDialog {
                 cardJson.body[0].columns[0].items[0].text = `Alert Name : ${step.values.name}`;
                 cardJson.body[0].columns[0].items[1].text = `Metrics : ${step.values.metrics}`;
                 cardJson.body[0].columns[0].items[2].text = `${step.values.condition} ${step.values.value}`;
+                cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
                 let adaptiveCard = CardFactory.adaptiveCard(cardJson);
                 await step.context.sendActivity({
                     text: 'Alert successfully created.',

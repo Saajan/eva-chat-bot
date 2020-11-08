@@ -100,8 +100,8 @@ server.post('/api/notify/all', async (req, res) => {
             cardJson.body[0].columns[0].items[0].text = `**${title}**`;
             cardJson.body[0].columns[0].items[1].text = `**${type}**`;
             cardJson.body[0].columns[0].items[2].text = `_${description}_`;
-            cardJson.body[0].columns[1].items[0].url = `https://via.placeholder.com/150/FF00FF/FFFFFF?Text=Alert`;
-            cardJson.actions[0].url = `${process.env.ApiUrl}${baseURL}`;
+            cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
+            cardJson.actions[0].url = `${process.env.AppUrl}/${type}`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
             await turnContext.sendActivity({
                 text: '',
@@ -135,7 +135,7 @@ server.post('/api/notify/:conversationID', async (req, res) => {
             cardJson.body[0].columns[0].items[2].text = `_Condition_ : **${condition} ${value}**`;
             cardJson.body[0].columns[0].items[3].text = `**${trigger_value}**`;
             cardJson.body[0].columns[0].items[4].text = `_${trigger_date}_`;
-            cardJson.actions[0].url = `${process.env.ApiUrl}${diagnostic_url}`;
+            cardJson.actions[0].url = `${process.env.AppUrl}/help`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
             await turnContext.sendActivity({
                 text: '',

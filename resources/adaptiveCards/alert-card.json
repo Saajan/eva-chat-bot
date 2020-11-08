@@ -2,10 +2,12 @@
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
     "type": "AdaptiveCard",
     "version": "1.0",
+    "backgroundImage": "https://via.placeholder.com/150/FF0000/FFFFFF?Text=Alert",
     "body": [
       {
         "speak": "Alert is created.",
         "type": "ColumnSet",
+        "style": "emphasis",
         "columns": [
           {
             "type": "Column",
