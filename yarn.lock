@@ -561,6 +561,22 @@ botframework-connector@4.7.2:
     node-fetch "^2.2.1"
     rsa-pem-from-mod-exp "^0.8.4"
 
+botframework-connector@^4.10.4:
+  version "4.10.4"
+  resolved "https://registry.yarnpkg.com/botframework-connector/-/botframework-connector-4.10.4.tgz#3b1f55bfca380e5797d9c379a4af4038a50f0b4f"
+  integrity sha512-TsoAi5S8Jfpg+nxDswgoEiw2lG9ZRTexxGtOplcxwt7GdI19vuUP+v2mZdWtsc68vzzl/BRcBQh6NaIJmBkZ0Q==
+  dependencies:
+    "@azure/ms-rest-js" "1.8.15"
+    "@types/jsonwebtoken" "7.2.8"
+    "@types/node" "^10.17.27"
+    adal-node "0.2.1"
+    base64url "^3.0.0"
+    botframework-schema "4.10.4"
+    form-data "^2.3.3"
+    jsonwebtoken "8.0.1"
+    node-fetch "^2.6.0"
+    rsa-pem-from-mod-exp "^0.8.4"
+
 botframework-schema@4.10.4:
   version "4.10.4"
   resolved "https://registry.yarnpkg.com/botframework-schema/-/botframework-schema-4.10.4.tgz#b42eeb39d8e94a3d5e8abdb2e59be68c9b038860"

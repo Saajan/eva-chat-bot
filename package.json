@@ -21,6 +21,7 @@
         "botbuilder": "~4.7.0",
         "botbuilder-ai": "^4.10.4",
         "botbuilder-dialogs": "^4.8.0",
+        "botframework-connector": "^4.10.4",
         "dotenv": "^8.2.0",
         "restify": "~8.4.0",
         "restify-plugins": "^1.6.0"

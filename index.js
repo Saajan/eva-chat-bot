@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
 let appInsights = require('applicationinsights');
+var BotConnector = require('botframework-connector');
 const restifyBodyParser = require('restify-plugins').bodyParser;
 const axios = require('axios');
 
@@ -73,6 +74,9 @@ const getAllUsers = async () => {
     try {
         const response = await axios.get(`${process.env.ApiUrl}/api/v1/user/all`);
         const { data: { data } } = response;
+        data.map((user) => {
+            BotConnector.MicrosoftAppCredentials.trustServiceUrl(user.meta.serviceUrl);
+        });
         conversationReferences = data;
     } catch (error) {
         conversationReferences = [];
@@ -145,7 +149,7 @@ server.post('/api/notify/:conversationID', async (req, res) => {
                 text: '',
                 attachments: [adaptiveCard]
             });
-            
+
         });
         await res.send('success');
         await res.status(200);
