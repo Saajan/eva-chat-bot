@@ -65,6 +65,8 @@ const onTurnErrorHandler = async (context, error) => {
     await context.sendActivity('To continue to run this bot, please fix the bot source code.');
 };
 
+BotConnector.MicrosoftAppCredentials.trustServiceUrl('https://slack.botframework.com/');
+
 // Set the onTurnError for the singleton BotFrameworkAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
@@ -74,9 +76,6 @@ const getAllUsers = async () => {
     try {
         const response = await axios.get(`${process.env.ApiUrl}/api/v1/user/all`);
         const { data: { data } } = response;
-        data.map((user) => {
-            BotConnector.MicrosoftAppCredentials.trustServiceUrl(user.meta.serviceUrl);
-        });
         conversationReferences = data;
     } catch (error) {
         conversationReferences = [];
@@ -149,7 +148,7 @@ server.post('/api/notify/:conversationID', async (req, res) => {
                 text: '',
                 attachments: [adaptiveCard]
             });
-
+            
         });
         await res.send('success');
         await res.status(200);
