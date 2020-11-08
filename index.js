@@ -94,16 +94,16 @@ server.post('/api/messages', (req, res) => {
 // Listen for incoming notifications and send proactive messages to users.
 server.post('/api/notify/all', async (req, res) => {
     const { title, description, type, baseURL } = req.body;
+    let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
+    cardJson.body[0].columns[0].items[0].text = `**${title}**`;
+    cardJson.body[0].columns[0].items[1].text = `**${type}**`;
+    cardJson.body[0].columns[0].items[2].text = `_${description}_`;
+    cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
+    cardJson.actions[0].url = `${process.env.AppUrl}/${type}`;
+    const adaptiveCard = CardFactory.adaptiveCard(cardJson);
     let promises = conversationReferences.map(async profile => {
         const { meta } = profile;
         await adapter.continueConversation(meta, async turnContext => {
-            let cardJson = JSON.parse(JSON.stringify(AllNotifyCard));
-            cardJson.body[0].columns[0].items[0].text = `**${title}**`;
-            cardJson.body[0].columns[0].items[1].text = `**${type}**`;
-            cardJson.body[0].columns[0].items[2].text = `_${description}_`;
-            cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
-            cardJson.actions[0].url = `${process.env.AppUrl}/${type}`;
-            const adaptiveCard = CardFactory.adaptiveCard(cardJson);
             await turnContext.sendActivity({
                 text: '',
                 attachments: [adaptiveCard]
@@ -142,13 +142,13 @@ server.post('/api/notify/:conversationID', async (req, res) => {
                 text: '',
                 attachments: [adaptiveCard]
             });
-            
+
         });
         await res.send('success');
         await res.status(200);
         await res.end();
     } else {
-        await res.send('error');
+        await res.send('id not found in bot data');
         await res.status(404);
         await res.end();
     }
