@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
 let appInsights = require('applicationinsights');
-var BotConnector = require('botframework-connector');
 const restifyBodyParser = require('restify-plugins').bodyParser;
 const axios = require('axios');
 
@@ -64,8 +63,6 @@ const onTurnErrorHandler = async (context, error) => {
     await context.sendActivity('The bot encountered an error or bug.');
     await context.sendActivity('To continue to run this bot, please fix the bot source code.');
 };
-
-BotConnector.MicrosoftAppCredentials.trustServiceUrl('https://slack.botframework.com/');
 
 // Set the onTurnError for the singleton BotFrameworkAdapter.
 adapter.onTurnError = onTurnErrorHandler;
