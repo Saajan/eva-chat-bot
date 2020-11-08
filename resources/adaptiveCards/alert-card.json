@@ -3,6 +3,7 @@
     "type": "AdaptiveCard",
     "version": "1.0",
     "backgroundImage": "https://via.placeholder.com/150/FF0000/FFFFFF?Text=Alert",
+    "fallbackText": "Alert card Created",
     "body": [
       {
         "speak": "Alert is created.",

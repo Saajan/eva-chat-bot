@@ -103,6 +103,8 @@ server.post('/api/notify/all', async (req, res) => {
             cardJson.body[0].columns[1].items[0].url = `${process.env.AppUrl}/images/Eva.png`;
             cardJson.actions[0].url = `${process.env.AppUrl}/${type}`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
+            await context.sendActivity(`Notification : ${title} of type ${type} triggered. ${description}`);
+            await context.sendActivity(`Link : ${process.env.AppUrl}/${type}`);
             await turnContext.sendActivity({
                 text: '',
                 attachments: [adaptiveCard]
@@ -137,10 +139,13 @@ server.post('/api/notify/:conversationID', async (req, res) => {
             cardJson.body[0].columns[0].items[4].text = `_${trigger_date}_`;
             cardJson.actions[0].url = `${process.env.AppUrl}/help`;
             const adaptiveCard = CardFactory.adaptiveCard(cardJson);
+            await context.sendActivity(`Alert : ${name} is triggered at ${trigger_date} for value ${trigger_value}`);
+            await context.sendActivity(`Link : ${process.env.AppUrl}/help`);
             await turnContext.sendActivity({
                 text: '',
                 attachments: [adaptiveCard]
             });
+            
         });
         await res.send('success');
         await res.status(200);

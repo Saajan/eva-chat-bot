@@ -75,6 +75,8 @@ class ReportsDialog extends ComponentDialog {
                 cardJson.body[0].url = `${process.env.ApiUrl}/images/screenshot/${name}.png`;
                 cardJson.actions[0].url = `${process.env.AppUrl}/dashboard?name=${name}&range=${step.values.range}`;
                 let adaptiveCard = CardFactory.adaptiveCard(cardJson);
+                await step.context.sendActivity(`screenshot : ${process.env.ApiUrl}/images/screenshot/${name}.png`);
+                await step.context.sendActivity(`report : ${process.env.AppUrl}/dashboard?name=${name}&range=${step.values.range}`);
                 await step.context.sendActivity({
                     text: 'Here is the report',
                     attachments: [adaptiveCard]
