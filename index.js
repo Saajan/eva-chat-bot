@@ -4,7 +4,8 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
-let appInsights = require('applicationinsights');
+const appInsights = require('applicationinsights');
+const BotConnector = require('botframework-connector');
 const restifyBodyParser = require('restify-plugins').bodyParser;
 const axios = require('axios');
 
